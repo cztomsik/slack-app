@@ -1,3 +1,5 @@
+![slack-app](https://github.com/cztomsik/node-webrender/raw/master/docs/slack-app.gif)
+
 Slack client app done with node.js, react & webrender (using [node-webrender](https://github.com/cztomsik/node-webrender))
 
 - Do not use this for work

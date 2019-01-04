@@ -4,6 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "ts-node -r ./hmr.js src/main.tsx",
+    "build": "ncc build -e ws -e node-webrender -e yoga-layout -e keytar src/main.tsx",
+    "start": "npm run build && node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -11,6 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "@slack/client": "^4.8.0",
+    "keytar": "^4.3.0",
     "node-webrender": "^0.1.7",
     "react": "^16.7.0-alpha.2",
     "react-reconciler": "^0.18.0-alpha.2",

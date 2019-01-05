@@ -122,9 +122,9 @@ const useWorkspace = token => {
         workspace.name = team.name
         workspace.rooms = channels
 
-        workspace.sendText = (channelId, text) =>
+        workspace.sendText = (room, text) =>
           webClient.chat.postMessage({
-            channel: channelId,
+            channel: room.id,
             text
           })
 

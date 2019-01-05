@@ -6,71 +6,17 @@ import {
   StyleSheet,
   ScrollView,
   Button,
-  TextInput
+  TextInput,
+  TouchableWithoutFeedback
 } from 'node-webrender/lib/react'
 import Room from './Room'
 import { WebClient, RTMClient } from '@slack/client'
 
+// TODO: room -> conversation
 const Workspace = ({ token, logout }) => {
-  const [name, setName] = useState('loading...')
-  const [channels, setChannels] = useState([])
-  const [room, setRoom] = useState(undefined)
-  const clientsRef = useRef(undefined)
-
-  useLayoutEffect(
-    () => {
-      const webClient: any = new WebClient(token)
-      const rtmClient = new RTMClient(token)
-
-      clientsRef.current = { webClient, rtmClient }
-
-      Promise.resolve().then(async () => {
-        const { team } = await webClient.team.info()
-        const { channels } = await webClient.channels.list()
-
-        setName(team.name)
-        setChannels(channels)
-
-        rtmClient.on('message', e => {
-          console.log(e)
-
-          if (e.channel) {
-            const ch = channels.find(ch => ch.id === e.channel)
-
-            if (ch) {
-              ch.messages.push(e)
-              setChannels(channels)
-            }
-          }
-        })
-
-        await selectRoom(channels[0])
-        await rtmClient.start()
-      })
-
-      return () => clientsRef.current.rtmClient.disconnect()
-    },
-    [token]
+  const { name, rooms, selectedRoom, selectRoom, sendText } = useWorkspace(
+    token
   )
-
-  const selectRoom = async room => {
-    const {
-      current: { webClient }
-    } = clientsRef
-
-    if (!room.messages) {
-      const { messages } = await webClient.conversations.history({
-        channel: room.id
-      })
-      room.messages = messages.reverse()
-    }
-
-    setRoom(room)
-  }
-
-  const sendText = text => {
-    clientsRef.current.webClient.chat.postMessage({ channel: room.id, text })
-  }
 
   return (
     <View style={styles.ct}>
@@ -80,7 +26,7 @@ const Workspace = ({ token, logout }) => {
         </View>
 
         <ScrollView style={{ flex: 1 }}>
-          <RoomList channels={channels} />
+          <RoomList {...{ rooms, selectedRoom, selectRoom }} />
         </ScrollView>
 
         <View style={styles.footer}>
@@ -88,21 +34,28 @@ const Workspace = ({ token, logout }) => {
         </View>
       </View>
 
-      {room && <Room room={room} sendText={sendText} />}
+      {selectedRoom && (
+        <Room
+          room={selectedRoom}
+          sendText={text => sendText(selectedRoom, text)}
+        />
+      )}
     </View>
   )
 }
 
-const RoomList = ({ channels }) => (
+const RoomList = ({ rooms, selectedRoom, selectRoom }) => (
   <View style={styles.roomList}>
-    {channels.map(ch => (
-      <ListItem key={ch.id} text={ch.name} />
+    {rooms.map(r => (
+      <TouchableWithoutFeedback key={r.id} onPress={() => selectRoom(r)}>
+        <ListItem text={r.name} active={r === selectedRoom} />
+      </TouchableWithoutFeedback>
     ))}
   </View>
 )
 
-const ListItem = ({ text }) => (
-  <View style={styles.listItem}>
+const ListItem = ({ text, active }) => (
+  <View style={[styles.listItem, active && styles.listItemActive]}>
     <Text style={styles.listItemText}>{text}</Text>
   </View>
 )
@@ -133,6 +86,10 @@ const styles = StyleSheet.create({
     paddingLeft: 20
   },
 
+  listItemActive: {
+    backgroundColor: '#000000'
+  },
+
   listItemText: {
     color: '#cac4c9',
     lineHeight: 20
@@ -143,5 +100,70 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start'
   }
 })
+
+const useWorkspace = token => {
+  const [workspace, setWorkspace] = useState({
+    name: 'loading...',
+    rooms: [],
+    selectedRoom: undefined,
+    selectRoom: undefined,
+    sendText: undefined
+  })
+
+  useLayoutEffect(
+    () => {
+      const webClient: any = new WebClient(token)
+      const rtmClient: any = new RTMClient(token)
+
+      Promise.resolve().then(async () => {
+        const { team } = await webClient.team.info()
+        const { channels } = await webClient.channels.list()
+
+        workspace.name = team.name
+        workspace.rooms = channels
+
+        workspace.sendText = (channelId, text) =>
+          webClient.chat.postMessage({
+            channel: channelId,
+            text
+          })
+
+        workspace.selectRoom = async room => {
+          if (!room.messages) {
+            const { messages } = await webClient.conversations.history({
+              channel: room.id
+            })
+            room.messages = messages.reverse()
+          }
+
+          workspace.selectedRoom = room
+          setWorkspace(workspace)
+        }
+
+        rtmClient.on('message', e => {
+          console.log(e)
+
+          if (e.channel) {
+            const ch = workspace.rooms.find(ch => ch.id === e.channel)
+
+            if (ch) {
+              ch.messages.push(e)
+              setWorkspace(workspace)
+            }
+          }
+        })
+
+        await workspace.selectRoom(channels[0])
+        await rtmClient.start()
+        setWorkspace(workspace)
+      })
+
+      return () => rtmClient.disconnect()
+    },
+    [token]
+  )
+
+  return workspace
+}
 
 export default Workspace

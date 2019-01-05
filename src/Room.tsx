@@ -25,8 +25,8 @@ const Room = ({ room, sendText }) => {
       <ScrollView style={{ flexDirection: 'column-reverse' }}>
         <Foreword name={room.name} />
 
-        {room.messages.map(m => (
-          <Message key={m.id} text={m.text} />
+        {room.messages.map((m, i) => (
+          <Message key={i} text={m.text} />
         ))}
       </ScrollView>
 

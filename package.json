@@ -15,10 +15,10 @@
   "dependencies": {
     "@slack/client": "^4.8.0",
     "keytar": "^4.3.0",
-    "node-webrender": "^0.1.8",
-    "react": "^16.7.0-alpha.2",
-    "react-reconciler": "^0.18.0-alpha.2",
-    "scheduler": "^0.12.0-alpha.2",
+    "node-webrender": "^0.1.10",
+    "react": "16.7.0-alpha.2",
+    "react-reconciler": "0.18.0-alpha.2",
+    "scheduler": "0.12.0-alpha.2",
     "yoga-layout": "^1.9.3"
   },
   "devDependencies": {

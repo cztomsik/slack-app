@@ -7,6 +7,7 @@ Slack client app done with node.js, react & webrender (using [node-webrender](ht
 - any help is welcome
 - windows is not yet supported
 
+
 run with
 
 ```
@@ -14,3 +15,4 @@ npm i
 npm run dev
 ```
 
+[Please check node-webrender system requirements first](https://github.com/cztomsik/node-webrender#requirements)

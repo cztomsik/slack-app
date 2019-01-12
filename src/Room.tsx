@@ -22,7 +22,7 @@ const Room = ({ room, sendText }) => {
         <Text style={styles.heading}>{room.name}</Text>
       </View>
 
-      <ScrollView style={{ flexDirection: 'column-reverse' }}>
+      <ScrollView key={room.id} style={{ flexDirection: 'column-reverse' }}>
         <Foreword name={room.name} />
 
         {room.messages.map((m, i) => (

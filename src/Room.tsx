@@ -19,14 +19,14 @@ const Room = ({ room, sendText }) => {
   return (
     <View style={styles.room}>
       <View style={styles.header}>
-        <Text style={styles.heading}>{room.name}</Text>
+        <Text style={styles.heading}>{room.name || room.user}</Text>
       </View>
 
       <ScrollView key={room.id} style={{ flexDirection: 'column-reverse' }}>
         <Foreword name={room.name} />
 
         {room.messages.map((m, i) => (
-          <Message key={i} text={m.text} />
+          <Message key={i} user={m.user} text={m.text} />
         ))}
       </ScrollView>
 
@@ -48,12 +48,12 @@ const Foreword = ({ name }) => (
   </View>
 )
 
-const Message = ({ text }) => (
+const Message = ({ user, text }) => (
   <View style={styles.message}>
     <View style={styles.image} />
 
     <View style={styles.messageBody}>
-      <Text style={styles.messageSender}>John Doe</Text>
+      <Text style={styles.messageSender}>{user}</Text>
       <Text style={styles.messageText}>{text}</Text>
     </View>
   </View>

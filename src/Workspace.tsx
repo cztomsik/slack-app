@@ -48,7 +48,7 @@ const RoomList = ({ rooms, selectedRoom, selectRoom }) => (
   <View style={styles.roomList}>
     {rooms.map(r => (
       <TouchableWithoutFeedback key={r.id} onPress={() => selectRoom(r)}>
-        <ListItem text={r.name} active={r === selectedRoom} />
+        <ListItem text={r.name || r.user} active={r === selectedRoom} />
       </TouchableWithoutFeedback>
     ))}
   </View>
@@ -117,7 +117,10 @@ const useWorkspace = token => {
 
       Promise.resolve().then(async () => {
         const { team } = await webClient.team.info()
-        const { channels } = await webClient.channels.list()
+        const { channels } = await webClient.conversations.list({
+          exclude_archived: true,
+          types: 'public_channel,private_channel,im,mpim'
+        })
 
         workspace.name = team.name
         workspace.rooms = channels
@@ -141,7 +144,7 @@ const useWorkspace = token => {
         }
 
         rtmClient.on('message', e => {
-          console.log(e)
+          console.log('message', e)
 
           if (e.channel) {
             const ch = workspace.rooms.find(ch => ch.id === e.channel)

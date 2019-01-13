@@ -2,10 +2,11 @@
   "name": "slack-app",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node -r ./hmr.js src/main.tsx",
     "build": "ncc build -C -e yoga-layout src/main.tsx",
+    "package": "electron-builder",
     "start": "npm run build && node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -28,5 +29,18 @@
     "hot-module-replacement": "^3.0.3",
     "ts-node": "^7.0.1",
     "typescript": "^3.2.2"
+  },
+  "build": {
+    "protonNodeVersion": "current",
+    "npmRebuild": false,
+    "directories": {
+      "output": "dist-app"
+    },
+    "files": [
+      "dist",
+      "!dist/native/target",
+      "!node_modules",
+      "node_modules/yoga-layout"
+    ]
   }
 }

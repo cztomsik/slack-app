@@ -149,7 +149,8 @@ const useWorkspace = token => {
           if (e.channel) {
             const ch = workspace.rooms.find(ch => ch.id === e.channel)
 
-            if (ch) {
+            // if we found a room and it was already fetched
+            if (ch && ch.messages) {
               ch.messages.push(e)
               setWorkspace(workspace)
             }
